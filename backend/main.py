@@ -63,7 +63,10 @@ def is_english(text):
     except:
         return False
 
-# Classify caption into News, Event, Phenomenon
+from openai import OpenAI
+
+client = OpenAI(api_key=OPENAI_API_KEY)
+
 def classify_caption(caption):
     prompt = f"""
     Classify the following TikTok content into one of the following categories:
@@ -77,28 +80,27 @@ def classify_caption(caption):
     Reply with just one word.
     """
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
-        return response['choices'][0]['message']['content'].strip()
+        return response.choices[0].message.content.strip()
     except Exception as e:
-        print("[ERROR] classify_caption:", str(e))  # <- Add this line
+        print("[ERROR] classify_caption:", str(e))
         return "Unknown"
 
-
-# Summarize caption
 def summarize_caption(caption):
     prompt = f"Summarize this TikTok caption in a few words: {caption}"
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
-        return response['choices'][0]['message']['content'].strip()
+        return response.choices[0].message.content.strip()
     except Exception as e:
-        print("[ERROR] summarize_caption:", str(e))  # <- Add this line
+        print("[ERROR] summarize_caption:", str(e))
         return "No summary"
+
 
 
 # TikTok analysis endpoint
