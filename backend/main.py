@@ -8,6 +8,7 @@ import time
 import asyncio
 from langdetect import detect
 from dotenv import load_dotenv
+import json
 
 load_dotenv()
 
@@ -82,7 +83,9 @@ def classify_caption(caption):
         )
         return response['choices'][0]['message']['content'].strip()
     except Exception as e:
+        print("[ERROR] classify_caption:", str(e))  # <- Add this line
         return "Unknown"
+
 
 # Summarize caption
 def summarize_caption(caption):
@@ -94,7 +97,9 @@ def summarize_caption(caption):
         )
         return response['choices'][0]['message']['content'].strip()
     except Exception as e:
+        print("[ERROR] summarize_caption:", str(e))  # <- Add this line
         return "No summary"
+
 
 # TikTok analysis endpoint
 @app.post("/analyze")
@@ -123,18 +128,19 @@ async def analyze(request: Request):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
-# Simulated TikTok data (replace with real scraper later)
-tiktok_captions = [
-    "This man built a flying car and tested it in New York!",
-    "🔥 Concert footage from last night in LA, insane energy!",
-    "A huge flood just hit a town in the UK unexpectedly...",
-    "Someone just broke a world record using only a toothbrush!"
-]
+# Real TikTok captions loader (mocked JSON file from bot for now)
+def fetch_real_tiktok_captions():
+    try:
+        with open("captions.json", "r", encoding="utf-8") as f:
+            return json.load(f)
+    except:
+        return []
 
 # Run full auto-check every 1 minute
 async def auto_tracker():
     while True:
         print("⏱️ Running TikTok Tracker check...")
+        tiktok_captions = fetch_real_tiktok_captions()
         for caption in tiktok_captions:
             if not is_english(caption):
                 continue
