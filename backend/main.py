@@ -5,6 +5,7 @@ import requests
 import openai
 import os
 import time
+import asyncio
 from langdetect import detect
 from dotenv import load_dotenv
 
@@ -122,13 +123,29 @@ async def analyze(request: Request):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
-# Example logic to simulate a TikTok alert (expand as needed)
-def simulate_tracking():
-    print("Simulating tracking...")
-    viral_video_alert = "🚀 Viral TikTok content detected!"
-    notify_telegram(viral_video_alert)
+# Simulated TikTok data (replace with real scraper later)
+tiktok_captions = [
+    "This man built a flying car and tested it in New York!",
+    "🔥 Concert footage from last night in LA, insane energy!",
+    "A huge flood just hit a town in the UK unexpectedly...",
+    "Someone just broke a world record using only a toothbrush!"
+]
 
-# On startup, send notification
+# Run full auto-check every 1 minute
+async def auto_tracker():
+    while True:
+        print("⏱️ Running TikTok Tracker check...")
+        for caption in tiktok_captions:
+            if not is_english(caption):
+                continue
+            category = classify_caption(caption)
+            summary = summarize_caption(caption)
+            alert = f"🚨 Viral Content Detected\n\n🧠 Summary: {summary}\n📌 Category: {category}\n📝 Original: {caption}"
+            notify_telegram(alert)
+            await asyncio.sleep(2)  # Slight delay between alerts
+        await asyncio.sleep(60)  # Wait 1 minute between runs
+
 @app.on_event("startup")
 def startup_event():
     notify_telegram("🚀 TikTok Tracker backend just started.")
+    asyncio.create_task(auto_tracker())
