@@ -3,4 +3,4 @@ uvicorn
 requests
 python-dotenv
 langdetect
-openai
+openai>=1.0.0  # Use modern OpenAI SDK (v1+)
