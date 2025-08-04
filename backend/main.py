@@ -6,6 +6,7 @@ import openai
 import os
 import time
 import asyncio
+import subprocess
 from langdetect import detect
 from dotenv import load_dotenv
 import json
@@ -142,6 +143,15 @@ def fetch_real_tiktok_captions():
 async def auto_tracker():
     while True:
         print("⏱️ Running TikTok Tracker check...")
+async def run_scraper_every_minute():
+    while True:
+        print("⚙️ Running scraper.py...")
+        try:
+            subprocess.run(["python", "scraper.py"], check=True)
+        except Exception as e:
+            print("❌ Error running scraper.py:", str(e))
+        await asyncio.sleep(60)
+
         tiktok_captions = fetch_real_tiktok_captions()
         for caption in tiktok_captions:
             if not is_english(caption):
@@ -157,3 +167,5 @@ async def auto_tracker():
 def startup_event():
     notify_telegram("🚀 TikTok Tracker backend just started.")
     asyncio.create_task(auto_tracker())
+    asyncio.create_task(run_scraper_every_minute())  # New line to run scraper
+
